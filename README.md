@@ -8,17 +8,6 @@
 
 
 
-# **Contents**
-
-[Overview	1](#Overview)
-
-[Packet Information	2](#Packet_information)
-
-[FAQS	16](#FAQS)
-
-[Appendices	21](#Appendices)
-
-[Legal Notice	30](#Legal_Notice)
 
 
 
@@ -29,7 +18,7 @@ The F1® 23 Game supports the output of certain game data across UDP connections
 
 The following information summarise these data structures so that developers of supporting hardware or software can configure these to work correctly with the F1® 23 Game. 
 
-***Note:** To ensure that you are using the latest specification for this game, please check our official forum page [here](https://answers.ea.com/t5/General-Discussion/F1-23-UDP-Specification/td-p/12632888).* 
+***Note:** To ensure that you are using the latest specification for this game, please check our official forum page `https://answers.ea.com/t5/General-Discussion/F1-23-UDP-Specification/td-p/12632888`
 
 If you cannot find the information that you require then please contact the team via the official forum thread listed above. For any bugs with the UDP system, please post a new bug report on the F1® 23 Game forum. 
 
@@ -1121,8 +1110,8 @@ F1 23 uses a new format for the UDP data. However, some earlier formats of the d
 
 Specifications for the older formats can be seen here:
 
-- F1 2021 - <https://forums.codemasters.com/topic/80231-f1-2021-udp-specification>
-- F1 22 - https://answers.ea.com/t5/General-Discussion/F1-22-UDP-Specification/td-p/11551274
+- F1 2021 - `https://forums.codemasters.com/topic/80231-f1-2021-udp-specification`
+- F1 22 - `https://answers.ea.com/t5/General-Discussion/F1-22-UDP-Specification/td-p/11551274`
 
 ## **How do I enable D-BOX output?**
 D-BOX output is currently supported on the PC platform. In F1 23, the D-BOX activation can be controlled via the menus. Navigate to Game Options->Settings->UDP Telemetry Settings->D-BOX to activate this on your system.
