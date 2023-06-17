@@ -115,8 +115,7 @@ Version: 1
 struct CarMotionData
 
 ```rust
-
-ruststruct CarMotionData {
+struct CarMotionData {
     m_worldPositionX: f32,      // World space X position - meters
     m_worldPositionY: f32,      // World space Y position
     m_worldPositionZ: f32,      // World space Z position
@@ -144,8 +143,7 @@ struct PacketMotionData {
 
 ```
 
-##
-##
+
 ## **Session Packet**
 
 The session packet includes details about the current session in progress.
@@ -459,7 +457,6 @@ impl From<[u8; 4]> for EventStringCode {
 ```
 
 ## **Event String Codes**
-### *** 
 
 |**Event**|**Code**|**Description**|
 | - | - | - |
@@ -522,7 +519,6 @@ struct PacketParticipantsData {
 
 ```
 
-##
 ## **Car Setups Packet**
 
 This packet details the car setups for each vehicle in the session. Note that in multiplayer games, other player cars will appear as blank, you will only be able to see your own car setup, regardless of the “Your Telemetry” setting. Spectators will also not be able to see any car setups.
@@ -751,7 +747,8 @@ struct PacketLobbyInfoData {
 
 
 ## **Car Damage Packet**
-###
+
+
 This packet details car damage parameters for all the cars in the race.
 
 
@@ -1271,7 +1268,8 @@ Here are the values used for some of the parameters in the UDP data output.
 |53|Luca Ghiotto|112|Oscar Piastri|||
 |54|Lando Norris|113|Liam Lawson|||
 |55|Sérgio Sette Câmara|114|Juri Vips|||
-##
+
+
 
 ## **Track IDs**
 
@@ -1391,7 +1389,8 @@ Here are the values used for some of the parameters in the UDP data output.
 |9|Drift|
 |10|Average Speed Zone|
 |11|Rival Duel|
-##
+
+
 ## **Surface types**
 
 These types are from physics data and show what type of contact each wheel is experiencing.
@@ -1412,7 +1411,7 @@ These types are from physics data and show what type of contact each wheel is ex
 |10|Metal|
 |11|Ridged|
 
-#**Button flags**
+# **Button flags**
 
 These flags are used in the telemetry packet to determine if any buttons are being held on the controlling device. If the value below logical ANDed with the button status is set then the corresponding button is being held.
 
@@ -1451,7 +1450,8 @@ These flags are used in the telemetry packet to determine if any buttons are bei
 |0x20000000|UDP Action 10|
 |0x40000000|UDP Action 11|
 |0x80000000|UDP Action 12|
-#
+
+
 ## **Penalty types**
 
 
@@ -1476,7 +1476,7 @@ These flags are used in the telemetry packet to determine if any buttons are bei
 |16|Retired|
 |17|Black flag timer|
 
-##
+
 ## **Infringement types**
 
 
@@ -1540,7 +1540,7 @@ These flags are used in the telemetry packet to determine if any buttons are bei
 
 
 
-<
+
 # **Legal Notice**
 
 F1® 23 Game - an official product of the FIA Formula One World Championship™.
