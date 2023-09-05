@@ -1,7 +1,7 @@
 {
   "name": "f1-23-udp",
   "version": "1.0.0",
-  "description": "",
+  "description": "F1 2021 UDP Telemetry parser for Node.js and TypeScript with type definitions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "commonjs",
@@ -9,7 +9,7 @@
     "build": "tsc"
   },
   "keywords": [],
-  "author": "",
+  "author": "Kaspars Bergs",
   "license": "ISC",
   "dependencies": {
     "binary-parser": "^2.2.1"
