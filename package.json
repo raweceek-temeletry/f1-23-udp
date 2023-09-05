@@ -1,6 +1,6 @@
 {
   "name": "f1-23-udp",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "F1 2021 UDP Telemetry parser for Node.js and TypeScript with type definitions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -32,7 +32,7 @@
   },
   "keywords": [
     "codemasters",
-    "f1 23",
+    "f123",
     "udp",
     "telemetry",
     "parser",
