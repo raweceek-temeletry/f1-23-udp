@@ -5,6 +5,27 @@
 # Found the code helpful? ⭐ Show your support by starring the repo on GitHub!
 
 
+## how to use?
+
+```js
+
+import { F123UDP } from "f1-23-udp";
+/*
+*   'port' is optional, defaults to 20777
+*   'address' is optional, defaults to localhost, in certain cases you may need to set address explicitly
+*/
+
+const f123: F123UDP = new F123UDP();
+f123.start();
+// motion 0
+f123.on('motion',function(data) {
+    console.log(data);
+})
+
+
+```
+
+
 ![](cover.jpg)	
 
 
