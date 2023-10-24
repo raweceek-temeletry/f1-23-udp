@@ -392,7 +392,7 @@ var F123UDP = /** @class */ (function (_super) {
                             .uint8('m_timeTrialPBCarIdx')
                             .uint8('m_timeTrialRivalCarIdx');
                         var data = PacketLapDataParser.parse(msg);
-                        _this.emit('lap', data);
+                        _this.emit('lapData', data);
                         break;
                     }
                     case PACKET_SIZES.event: {

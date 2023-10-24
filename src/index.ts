@@ -928,7 +928,7 @@ export class F123UDP extends EventEmitter {
 
             const data: PacketLapData = PacketLapDataParser.parse(msg);
 
-            this.emit('lap', data);
+            this.emit('lapData', data);
             break;
           }
           case PACKET_SIZES.event: {
