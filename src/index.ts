@@ -5,7 +5,7 @@ import { createSocket, RemoteInfo, Socket } from 'node:dgram';
 const DEFAULT_PORT = 20777;
 const ADDRESS = 'localhost';
 
-interface ParticipantData {
+export interface ParticipantData {
   m_aiControlled: number;         // Whether the vehicle is AI (1) or Human (0) controlled
   m_driverId: number;             // Driver id - see appendix, 255 if network human
   m_networkId: number;            // Network id – unique identifier for network players
@@ -20,13 +20,13 @@ interface ParticipantData {
 
 }
 
-interface PacketParticipantsData {
+export interface PacketParticipantsData {
   m_header: PacketHeader;
   m_numActiveCars: number;
   m_participants: ParticipantData[];
 }
 
-interface CarSetupData {
+export interface CarSetupData {
   m_frontWing: number;                // Front wing aero
   m_rearWing: number;                 // Rear wing aero
   m_onThrottle: number;               // Differential adjustment on throttle (percentage)
@@ -51,13 +51,13 @@ interface CarSetupData {
   m_fuelLoad: number;                // Fuel load
 }
 
-interface PacketCarSetupData {
+export interface PacketCarSetupData {
   m_header: PacketHeader;  // Header
   m_carSetups: CarSetupData[];
 }
 
 
-interface CarTelemetryData {
+export interface CarTelemetryData {
   m_speed: number;                              // Speed of car in kilometres per hour
   m_throttle: number;                           // Amount of throttle applied (0.0 to 1.0)
   m_steer: number;                              // Steering (-1.0 (full lock left) to 1.0 (full lock right))
@@ -76,7 +76,7 @@ interface CarTelemetryData {
   m_surfaceType: number[];                    // Driving surface, see appendices
 }
 
-interface PacketCarTelemetryData {
+export interface PacketCarTelemetryData {
   m_header: PacketHeader;                                      // Header
   m_carTelemetryData: CarTelemetryData[];
   m_mfdPanelIndex: number;                                         // Index of MFD panel open - 255 = MFD closed
@@ -85,7 +85,7 @@ interface PacketCarTelemetryData {
   m_suggestedGear: number;                                         // Suggested gear for the player (1-8)
   // 0 if no gear suggested
 }
-interface CarStatusData {
+export interface CarStatusData {
   m_traction_control: number;             // Traction control - 0 = off, 1 = medium, 2 = full
   m_anti_lock_brakes: number;             // 0 (off) - 1 (on)
   m_fuel_mix: number;                     // Fuel mix - 0 = lean, 1 = standard, 2 = rich, 3 = max
@@ -123,12 +123,12 @@ interface CarStatusData {
   m_network_paused: number;               // Whether the car is paused in a network game
 }
 
-interface PacketCarStatusData {
+export interface PacketCarStatusData {
   m_header: PacketHeader;             // Header
   m_car_status_data: CarStatusData[];
 }
 
-interface FinalClassificationData {
+export interface FinalClassificationData {
   m_position: number;             // Finishing position
   m_numLaps: number;              // Number of laps completed
   m_gridPosition: number;         // Grid position of the car
@@ -147,12 +147,12 @@ interface FinalClassificationData {
   m_tyreStintsEndLaps: number[];   // The lap number stints end on
 }
 
-interface PacketFinalClassificationData {
+export interface PacketFinalClassificationData {
   m_header: PacketHeader;                     // Header
   m_numCars: number;                               // Number of cars in the final classification
   m_classificationData: FinalClassificationData[];
 }
-interface LobbyInfoData {
+export interface LobbyInfoData {
   m_aiControlled: number;      // Whether the vehicle is AI (1) or Human (0) controlled
   m_teamId: number;            // Team id - see appendix (255 if no team currently selected)
   m_nationality: number;
@@ -163,13 +163,13 @@ interface LobbyInfoData {
   m_readyStatus: number;       // 0 = not ready, 1 = ready, 2 = spectating
 }
 
-interface PacketLobbyInfoData {
+export interface PacketLobbyInfoData {
   m_header: PacketHeader;               // Header 
   m_numPlayers: number;                     // Number of players in the lobby data
   m_lobbyPlayers: LobbyInfoData[];
 }
 
-interface CarDamageData {
+export interface CarDamageData {
   m_tyres_wear: number[];              // Tyre wear (percentage)
   m_tyres_damage: number[];             // Tyre damage (percentage)
   m_brakes_damage: number[];            // Brakes damage (percentage)
@@ -193,11 +193,11 @@ interface CarDamageData {
   m_engine_seized: number;                 // Engine seized, 0 = OK, 1 = fault
 }
 
-interface PacketCarDamageData {
+export interface PacketCarDamageData {
   m_header: PacketHeader;                      // Header
   m_car_damage_data: CarDamageData[];
 }
-interface LapHistoryData {
+export interface LapHistoryData {
   m_lapTimeInMS: number;          // Lap time in milliseconds
   m_sector1TimeInMS: number;      // Sector 1 time in milliseconds
   m_sector1TimeMinutes: number;    // Sector 1 whole minute part
@@ -209,13 +209,13 @@ interface LapHistoryData {
   // 0x04 bit set-sector 2 valid, 0x08 bit set-sector 3 valid
 }
 
-interface TyreStintHistoryData {
+export interface TyreStintHistoryData {
   m_endLap: number;                // Lap the tyre usage ends on (255 of current tyre)
   m_tyreActualCompound: number;    // Actual tyres used by this driver
   m_tyreVisualCompound: number;    // Visual tyres used by this driver
 }
 
-interface PacketSessionHistoryData {
+export interface PacketSessionHistoryData {
   m_header: PacketHeader;              // Header
   m_carIdx: number;                        // Index of the car this lap data relates to
   m_numLaps: number;                       // Num laps in the data (including current partial lap)
@@ -227,7 +227,7 @@ interface PacketSessionHistoryData {
   m_lapHistoryData: LapHistoryData[];    // 100 laps of data max
   m_tyreStintsHistoryData: TyreStintHistoryData[];
 }
-interface TyreSetData {
+export interface TyreSetData {
   m_actualTyreCompound: number;     // Actual tyre compound used
   m_visualTyreCompound: number;     // Visual tyre compound used
   m_wear: number;                   // Tyre wear (percentage)
@@ -239,14 +239,14 @@ interface TyreSetData {
   m_fitted: number;                 // Whether the set is fitted or not
 }
 
-interface PacketTyreSetsData {
+export interface PacketTyreSetsData {
   m_header: PacketHeader;             // Header
   m_carIdx: number;                        // Index of the car this data relates to
   m_tyreSetData: TyreSetData[];    // 13 (dry) + 7 (wet)
   m_fittedIdx: number;                     // Index into array of fitted tyre
 }
 
-interface PacketMotionExData {
+export interface PacketMotionExData {
   m_header: PacketHeader;                // Header
   m_suspensionPosition: number[];        // Note: All wheel arrays have the following order: RL, RR, FL, FR
   m_suspensionVelocity: number[];        // RL, RR, FL, FR
@@ -270,26 +270,26 @@ interface PacketMotionExData {
   m_wheelVertForce: number[];            // Vertical forces for each wheel
 }
 
-interface Options {
+export interface Options {
   port?: number;
   address?: string;
 }
 
-interface FastestLapData {
+export interface FastestLapData {
   vehicleIdx: number;
   lapTime: number;
 }
-interface RetirementData {
+export interface RetirementData {
   vehicleIdx: number;
 }
 
-interface TeamMateInPitsData {
+export interface TeamMateInPitsData {
   vehicleIdx: number;
 }
-interface RaceWinnerData {
+export interface RaceWinnerData {
   vehicleIdx: number;
 }
-interface PenaltyData {
+export interface PenaltyData {
   penaltyType: number;
   infringementType: number;
   vehicleIdx: number;
@@ -299,7 +299,7 @@ interface PenaltyData {
   placesGained: number;
 }
 
-interface SpeedTrapData {
+export interface SpeedTrapData {
   vehicleIdx: number;
   speed: number;
   isOverallFastestInSession: number;
@@ -308,42 +308,42 @@ interface SpeedTrapData {
   fastestSpeedInSession: number;
 }
 
-interface StartLightsData {
+export interface StartLightsData {
   numLights: number;
 }
 
 
-interface DriveThroughPenaltyServedData {
+export interface DriveThroughPenaltyServedData {
   vehicleIdx: number;
 }
 
 
-interface StopGoPenaltyServedData {
+export interface StopGoPenaltyServedData {
   vehicleIdx: number;
 }
 
-interface FlashbackData {
+export interface FlashbackData {
   flashbackFrameIdentifier: number;
   flashbackSessionTime: number;
 }
 
-interface ButtonsData {
+export interface ButtonsData {
   buttonStatus: number;
 }
 
-interface OvertakeData {
+export interface OvertakeData {
   overtakingVehicleIdx: number;
   beingOvertakenVehicleIdx: number;
 }
 
-interface PacketEventData {
+export interface PacketEventData {
   m_header: PacketHeader;
   m_eventStringCode: string;
 
   m_eventDetails: FastestLapData | RetirementData | TeamMateInPitsData | RaceWinnerData | PenaltyData | SpeedTrapData | StartLightsData | DriveThroughPenaltyServedData | StopGoPenaltyServedData | FlashbackData | ButtonsData | OvertakeData;
 }
 
-interface PacketHeader {
+export interface PacketHeader {
   packet_format: number;           // u16
   game_year: number;               // u8
   game_major_version: number;      // u8
@@ -358,7 +358,7 @@ interface PacketHeader {
   secondary_player_car_index: number; // u8
 }
 
-interface CarMotionData {
+export interface CarMotionData {
   m_worldPositionX: number;          // f32
   m_worldPositionY: number;          // f32
   m_worldPositionZ: number;          // f32
@@ -380,17 +380,17 @@ interface CarMotionData {
 }
 
 
-interface PacketMotionData {
+export interface PacketMotionData {
   m_header: PacketHeader;
   m_carMotionData: CarMotionData[];
 }
 
-interface MarshalZone {
+export interface MarshalZone {
   m_zoneStart: number;   // f32
   m_zoneFlag: number;    // i8
 }
 
-interface WeatherForecastSample {
+export interface WeatherForecastSample {
   m_sessionType: number;              // u8
   m_timeOffset: number;               // u8
   m_weather: number;                  // u8
@@ -400,7 +400,7 @@ interface WeatherForecastSample {
   m_airTemperatureChange: number;     // i8
   m_rainPercentage: number;           // u8
 }
-interface PacketSessionData {
+export interface PacketSessionData {
   m_header: PacketHeader;
   m_weather: number;
   m_trackTemperature: number;
@@ -454,7 +454,7 @@ interface PacketSessionData {
 }
 
 
-interface LapData {
+export interface LapData {
   m_lastLapTimeInMS: number;                   // u32
   m_currentLapTimeInMS: number;                // u32
   m_sector1TimeInMS: number;                   // u16
@@ -486,7 +486,7 @@ interface LapData {
   m_pitStopShouldServePen: number;              // u8
 }
 
-interface PacketLapData {
+export interface PacketLapData {
   m_header: PacketHeader;
   m_lapData: LapData[];
   m_timeTrialPBCarIdx: number;
