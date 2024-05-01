@@ -12,7 +12,7 @@ export interface ParticipantData {
   m_teamId: number;               // Team id - see appendix
   m_myTeam: number;               // My team flag – 1 = My Team, 0 = otherwise
   m_raceNumber: number;
-  m_nationalty: number;
+  m_nationality: number;
   m_name: string;
   m_yourTelemetry: number;
   m_showOnlineNames: number;
@@ -1268,7 +1268,7 @@ export class F123UDP extends EventEmitter {
               .uint8('m_teamId')
               .uint8('m_myTeam')
               .uint8('m_raceNumber')
-              .uint8('m_nationalty')
+              .uint8('m_nationality')
               .string('m_name', { length: 48 })
               .uint8('m_yourTelemetry')
               .uint8('m_showOnlineNames')
