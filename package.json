@@ -7,7 +7,7 @@
   "type": "commonjs",
   "repository": {
     "type": "git",
-    "url": "https://github.com/raweceek-temeletry/f1-23-udp"},
+    "url": "https://github.com/UFCampos/f1-23-udp"},
   "scripts": {
     "build": "tsc"
   },
