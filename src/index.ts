@@ -22,7 +22,7 @@ export class F123UDP extends EventEmitter {
     this.socket = createSocket('udp4');
     // Error event handler
     this.socket.on('error', (error: Error) => {
-      console.error(error) // Emit the error event for external handling
+      this.emit('error', error) // Emit the error event for external handling
     });
   }
 
