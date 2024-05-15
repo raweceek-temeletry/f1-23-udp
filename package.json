@@ -1,9 +1,9 @@
 {
   "name": "@ufcampos/f1-23-udp",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "F1 2021 UDP Telemetry parser for Node.js and TypeScript with type definitions",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/types.d.ts",
   "type": "commonjs",
   "repository": {
     "type": "git",
