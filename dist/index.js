@@ -19,6 +19,7 @@ exports.F123UDP = void 0;
 var binary_parser_1 = require("binary-parser");
 var node_stream_1 = require("node:stream");
 var node_dgram_1 = require("node:dgram");
+var parsers_1 = require("./utils/parsers");
 var DEFAULT_PORT = 20777;
 var ADDRESS = 'localhost';
 var F123UDP = /** @class */ (function (_super) {
@@ -30,6 +31,10 @@ var F123UDP = /** @class */ (function (_super) {
         _this.port = port;
         _this.address = address;
         _this.socket = (0, node_dgram_1.createSocket)('udp4');
+        // Error event handler
+        _this.socket.on('error', function (error) {
+            _this.emit('error', error); // Emit the error event for external handling
+        });
         return _this;
     }
     F123UDP.prototype.start = function () {
@@ -76,22 +81,9 @@ var F123UDP = /** @class */ (function (_super) {
                   // 255 if no second player
                 }
                 */
-                var PacketHeaderParser = new binary_parser_1.Parser().endianess('little')
-                    .uint16('packet_format')
-                    .uint8('game_year')
-                    .uint8('game_major_version')
-                    .uint8('game_minor_version')
-                    .uint8('packet_version')
-                    .uint8('packet_id')
-                    .uint64('session_uid')
-                    .floatle('session_time')
-                    .uint32('frame_identifier')
-                    .uint32('overall_frame_identifier')
-                    .uint8('player_car_index')
-                    .uint8('secondary_player_car_index');
                 var packet_format = msg.readUInt16LE(0);
                 function getEventStringCode(buffer) {
-                    var headerParser = new binary_parser_1.Parser().endianess('little').nest('m_header', { type: PacketHeaderParser }).string('m_eventStringCode', { length: 4 });
+                    var headerParser = new binary_parser_1.Parser().endianess('little').nest('m_header', { type: parsers_1.PacketHeaderParser }).string('m_eventStringCode', { length: 4 });
                     var m_eventStringCode = headerParser.parse(buffer).m_eventStringCode;
                     return m_eventStringCode;
                 }
@@ -126,29 +118,10 @@ var F123UDP = /** @class */ (function (_super) {
                           m_carMotionData: [CarMotionData; 22], // Data for all cars on track
                         }
                         */
-                        var CarMotionDataParser = new binary_parser_1.Parser().endianess('little')
-                            .floatle('m_worldPositionX')
-                            .floatle('m_worldPositionY')
-                            .floatle('m_worldPositionZ')
-                            .floatle('m_worldVelocityX')
-                            .floatle('m_worldVelocityY')
-                            .floatle('m_worldVelocityZ')
-                            .int16le('m_worldForwardDirX')
-                            .int16le('m_worldForwardDirY')
-                            .int16le('m_worldForwardDirZ')
-                            .int16le('m_worldRightDirX')
-                            .int16le('m_worldRightDirY')
-                            .int16le('m_worldRightDirZ')
-                            .floatle('m_gForceLateral')
-                            .floatle('m_gForceLongitudinal')
-                            .floatle('m_gForceVertical')
-                            .floatle('m_yaw')
-                            .floatle('m_pitch')
-                            .floatle('m_roll');
                         var PacketMotionDataParser = new binary_parser_1.Parser().endianess('little')
-                            .nest('m_header', { type: PacketHeaderParser })
+                            .nest('m_header', { type: parsers_1.PacketHeaderParser })
                             .array('m_carMotionData', {
-                            type: CarMotionDataParser,
+                            type: parsers_1.CarMotionDataParser,
                             length: 22
                         });
                         var data = PacketMotionDataParser.parse(msg);
@@ -237,76 +210,7 @@ var F123UDP = /** @class */ (function (_super) {
                             m_numRedFlagPeriods: u8,                // Number of red flags called during session
                         }
                         */
-                        var MarshalZoneParser = new binary_parser_1.Parser().endianess('little')
-                            .floatle('m_zoneStart')
-                            .int8('m_zoneFlag');
-                        var WeatherForecastSampleParser = new binary_parser_1.Parser().endianess('little')
-                            .uint8('m_sessionType')
-                            .uint8('m_timeOffset')
-                            .uint8('m_weather')
-                            .int8('m_trackTemperature')
-                            .int8('m_trackTemperatureChange')
-                            .int8('m_airTemperature')
-                            .int8('m_airTemperatureChange')
-                            .uint8('m_rainPercentage');
-                        var PacketSessionDataParser = new binary_parser_1.Parser().endianess('little')
-                            .nest('m_header', { type: PacketHeaderParser })
-                            .uint8('m_weather')
-                            .int8('m_trackTemperature')
-                            .int8('m_airTemperature')
-                            .uint8('m_totalLaps')
-                            .uint16le('m_trackLength')
-                            .uint8('m_sessionType')
-                            .int8('m_trackId')
-                            .uint8('m_formula')
-                            .uint16le('m_sessionTimeLeft')
-                            .uint16le('m_sessionDuration')
-                            .uint8('m_pitSpeedLimit')
-                            .uint8('m_gamePaused')
-                            .uint8('m_isSpectating')
-                            .uint8('m_spectatorCarIndex')
-                            .uint8('m_sliProNativeSupport')
-                            .uint8('m_numMarshalZones')
-                            .array('m_marshalZones', {
-                            type: MarshalZoneParser,
-                            length: 21
-                        })
-                            .uint8('m_safetyCarStatus')
-                            .uint8('m_networkGame')
-                            .uint8('m_numWeatherForecastSamples')
-                            .array('m_weatherForecastSamples', {
-                            type: WeatherForecastSampleParser,
-                            length: 56
-                        })
-                            .uint8('m_forecastAccuracy')
-                            .uint8('m_aiDifficulty')
-                            .uint32le('m_seasonLinkIdentifier')
-                            .uint32le('m_weekendLinkIdentifier')
-                            .uint32le('m_sessionLinkIdentifier')
-                            .uint8('m_pitStopWindowIdealLap')
-                            .uint8('m_pitStopWindowLatestLap')
-                            .uint8('m_pitStopRejoinPosition')
-                            .uint8('m_steeringAssist')
-                            .uint8('m_brakingAssist')
-                            .uint8('m_gearboxAssist')
-                            .uint8('m_pitAssist')
-                            .uint8('m_pitReleaseAssist')
-                            .uint8('m_ERSAssist')
-                            .uint8('m_DRSAssist')
-                            .uint8('m_dynamicRacingLine')
-                            .uint8('m_dynamicRacingLineType')
-                            .uint8('m_gameMode')
-                            .uint8('m_ruleSet')
-                            .uint32le('m_timeOfDay')
-                            .uint8('m_sessionLength')
-                            .uint8('m_speedUnitsLeadPlayer')
-                            .uint8('m_temperatureUnitsLeadPlayer')
-                            .uint8('m_speedUnitsSecondaryPlayer')
-                            .uint8('m_temperatureUnitsSecondaryPlayer')
-                            .uint8('m_numSafetyCarPeriods')
-                            .uint8('m_numVirtualSafetyCarPeriods')
-                            .uint8('m_numRedFlagPeriods');
-                        var data = PacketSessionDataParser.parse(msg);
+                        var data = parsers_1.PacketSessionDataParser.parse(msg);
                         _this.emit('session', data);
                         break;
                     }
@@ -353,45 +257,7 @@ var F123UDP = /** @class */ (function (_super) {
                             m_timeTrialRivalCarIdx: u8,                // Index of Rival car in time trial (255 if invalid)
                         }
                         */
-                        var LapDataParser = new binary_parser_1.Parser().endianess('little')
-                            .uint32le('m_lastLapTimeInMS')
-                            .uint32le('m_currentLapTimeInMS')
-                            .uint16le('m_sector1TimeInMS')
-                            .uint8('m_sector1TimeMinutes')
-                            .uint16le('m_sector2TimeInMS')
-                            .uint8('m_sector2TimeMinutes')
-                            .uint16le('m_deltaToCarInFrontInMS')
-                            .uint16le('m_deltaToRaceLeaderInMS')
-                            .floatle('m_lapDistance')
-                            .floatle('m_totalDistance')
-                            .floatle('m_safetyCarDelta')
-                            .uint8('m_carPosition')
-                            .uint8('m_currentLapNum')
-                            .uint8('m_pitStatus')
-                            .uint8('m_numPitStops')
-                            .uint8('m_sector')
-                            .uint8('m_currentLapInvalid')
-                            .uint8('m_penalties')
-                            .uint8('m_totalWarnings')
-                            .uint8('m_cornerCuttingWarnings')
-                            .uint8('m_numUnservedDriveThroughPens')
-                            .uint8('m_numUnservedStopGoPens')
-                            .uint8('m_gridPosition')
-                            .uint8('m_driverStatus')
-                            .uint8('m_resultStatus')
-                            .uint8('m_pitLaneTimerActive')
-                            .uint16le('m_pitLaneTimeInLaneInMS')
-                            .uint16le('m_pitStopTimerInMS')
-                            .uint8('m_pitStopShouldServePen');
-                        var PacketLapDataParser = new binary_parser_1.Parser().endianess('little')
-                            .nest('m_header', { type: PacketHeaderParser })
-                            .array('m_lapData', {
-                            type: LapDataParser,
-                            length: 22
-                        })
-                            .uint8('m_timeTrialPBCarIdx')
-                            .uint8('m_timeTrialRivalCarIdx');
-                        var data = PacketLapDataParser.parse(msg);
+                        var data = parsers_1.PacketLapDataParser.parse(msg);
                         _this.emit('lapData', data);
                         break;
                     }
@@ -543,128 +409,90 @@ var F123UDP = /** @class */ (function (_super) {
                             }
                         }
                         */
-                        var FastestLapDataParser = new binary_parser_1.Parser().endianess('little')
-                            .uint8('vehicleIdx')
-                            .floatle('lapTime');
-                        var RetirementDataParser = new binary_parser_1.Parser().endianess('little')
-                            .uint8('vehicleIdx');
-                        var TeamMateInPitsDataParser = new binary_parser_1.Parser().endianess('little')
-                            .uint8('vehicleIdx');
-                        var RaceWinnerDataParser = new binary_parser_1.Parser().endianess('little')
-                            .uint8('vehicleIdx');
-                        var PenaltyDataParser = new binary_parser_1.Parser().endianess('little')
-                            .uint8('penaltyType')
-                            .uint8('infringementType')
-                            .uint8('vehicleIdx')
-                            .uint8('otherVehicleIdx')
-                            .uint8('time')
-                            .uint8('lapNum')
-                            .uint8('placesGained');
-                        var SpeedTrapDataParser = new binary_parser_1.Parser().endianess('little')
-                            .uint8('vehicleIdx')
-                            .floatle('speed')
-                            .uint8('isOverallFastestInSession')
-                            .uint8('isDriverFastestInSession')
-                            .uint8('fastestVehicleIdxInSession')
-                            .floatle('fastestSpeedInSession');
-                        var StartLightsDataParser = new binary_parser_1.Parser().endianess('little')
-                            .uint8('numLights');
-                        var DriveThroughPenaltyServedDataParser = new binary_parser_1.Parser().endianess('little')
-                            .uint8('vehicleIdx');
-                        var StopGoPenaltyServedDataParser = new binary_parser_1.Parser().endianess('little')
-                            .uint8('vehicleIdx');
-                        var FlashbackDataParser = new binary_parser_1.Parser().endianess('little')
-                            .uint32le('flashbackFrameIdentifier')
-                            .floatle('flashbackSessionTime');
-                        var ButtonsDataParser = new binary_parser_1.Parser().endianess('little')
-                            .uint32le('buttonStatus');
-                        var OvertakeDataParser = new binary_parser_1.Parser().endianess('little')
-                            .uint8('overtakingVehicleIdx')
-                            .uint8('beingOvertakenVehicleIdx');
                         var EventStringCode = getEventStringCode(msg);
                         var data = void 0;
                         if (EventStringCode === 'FTLP') {
                             data = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
+                                .nest('m_header', { type: parsers_1.PacketHeaderParser })
                                 .string('m_eventStringCode', { length: 4 })
-                                .nest('m_eventDetails', { type: FastestLapDataParser })
+                                .nest('m_eventDetails', { type: parsers_1.FastestLapDataParser })
                                 .parse(msg);
                         }
                         else if (EventStringCode === 'RTMT') {
                             data = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
+                                .nest('m_header', { type: parsers_1.PacketHeaderParser })
                                 .string('m_eventStringCode', { length: 4 })
-                                .nest('m_eventDetails', { type: RetirementDataParser })
+                                .nest('m_eventDetails', { type: parsers_1.RetirementDataParser })
                                 .parse(msg);
                         }
                         else if (EventStringCode === 'TMPT') {
                             data = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
+                                .nest('m_header', { type: parsers_1.PacketHeaderParser })
                                 .string('m_eventStringCode', { length: 4 })
-                                .nest('m_eventDetails', { type: TeamMateInPitsDataParser })
+                                .nest('m_eventDetails', { type: parsers_1.TeamMateInPitsDataParser })
                                 .parse(msg);
                         }
                         else if (EventStringCode === 'RCWN') {
                             data = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
+                                .nest('m_header', { type: parsers_1.PacketHeaderParser })
                                 .string('m_eventStringCode', { length: 4 })
-                                .nest('m_eventDetails', { type: RaceWinnerDataParser })
+                                .nest('m_eventDetails', { type: parsers_1.RaceWinnerDataParser })
                                 .parse(msg);
                         }
                         else if (EventStringCode === 'PENA') {
                             data = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
+                                .nest('m_header', { type: parsers_1.PacketHeaderParser })
                                 .string('m_eventStringCode', { length: 4 })
-                                .nest('m_eventDetails', { type: PenaltyDataParser })
+                                .nest('m_eventDetails', { type: parsers_1.PenaltyDataParser })
                                 .parse(msg);
                         }
                         else if (EventStringCode === 'SPTP') {
                             data = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
+                                .nest('m_header', { type: parsers_1.PacketHeaderParser })
                                 .string('m_eventStringCode', { length: 4 })
-                                .nest('m_eventDetails', { type: SpeedTrapDataParser })
+                                .nest('m_eventDetails', { type: parsers_1.SpeedTrapDataParser })
                                 .parse(msg);
                         }
                         else if (EventStringCode === 'STLG') {
                             data = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
+                                .nest('m_header', { type: parsers_1.PacketHeaderParser })
                                 .string('m_eventStringCode', { length: 4 })
-                                .nest('m_eventDetails', { type: StartLightsDataParser })
+                                .nest('m_eventDetails', { type: parsers_1.StartLightsDataParser })
                                 .parse(msg);
                         }
                         else if (EventStringCode === 'DTSV') {
                             data = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
+                                .nest('m_header', { type: parsers_1.PacketHeaderParser })
                                 .string('m_eventStringCode', { length: 4 })
-                                .nest('m_eventDetails', { type: DriveThroughPenaltyServedDataParser })
+                                .nest('m_eventDetails', { type: parsers_1.DriveThroughPenaltyServedDataParser })
                                 .parse(msg);
                         }
                         else if (EventStringCode === 'SGSV') {
                             data = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
+                                .nest('m_header', { type: parsers_1.PacketHeaderParser })
                                 .string('m_eventStringCode', { length: 4 })
-                                .nest('m_eventDetails', { type: StopGoPenaltyServedDataParser })
+                                .nest('m_eventDetails', { type: parsers_1.StopGoPenaltyServedDataParser })
                                 .parse(msg);
                         }
                         else if (EventStringCode === 'FLBK') {
                             data = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
+                                .nest('m_header', { type: parsers_1.PacketHeaderParser })
                                 .string('m_eventStringCode', { length: 4 })
-                                .nest('m_eventDetails', { type: FlashbackDataParser })
+                                .nest('m_eventDetails', { type: parsers_1.FlashbackDataParser })
                                 .parse(msg);
                         }
                         else if (EventStringCode === 'BUTN') {
                             data = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
+                                .nest('m_header', { type: parsers_1.PacketHeaderParser })
                                 .string('m_eventStringCode', { length: 4 })
-                                .nest('m_eventDetails', { type: ButtonsDataParser })
+                                .nest('m_eventDetails', { type: parsers_1.ButtonsDataParser })
                                 .parse(msg);
                         }
                         else if (EventStringCode === 'OVTK') {
                             data = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
+                                .nest('m_header', { type: parsers_1.PacketHeaderParser })
                                 .string('m_eventStringCode', { length: 4 })
-                                .nest('m_eventDetails', { type: OvertakeDataParser })
+                                .nest('m_eventDetails', { type: parsers_1.OvertakeDataParser })
                                 .parse(msg);
                         }
                         else {
@@ -698,26 +526,7 @@ var F123UDP = /** @class */ (function (_super) {
                                 m_participants: [ParticipantData; 22],
                             }
                             */
-                            var ParticipantDataParser = new binary_parser_1.Parser().endianess('little')
-                                .uint8('m_aiControlled')
-                                .uint8('m_driverId')
-                                .uint8('m_networkId')
-                                .uint8('m_teamId')
-                                .uint8('m_myTeam')
-                                .uint8('m_raceNumber')
-                                .uint8('m_nationalty')
-                                .string('m_name', { length: 48 })
-                                .uint8('m_yourTelemetry')
-                                .uint8('m_showOnlineNames')
-                                .uint8('m_platform');
-                            var PacketParticipantsDataParser = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
-                                .uint8('m_numActiveCars')
-                                .array('m_participants', {
-                                type: ParticipantDataParser,
-                                length: 22
-                            });
-                            var data = PacketParticipantsDataParser.parse(msg);
+                            var data = parsers_1.PacketParticipantsDataParser.parse(msg);
                             _this.emit('participants', data);
                         }
                         break;
@@ -755,36 +564,7 @@ var F123UDP = /** @class */ (function (_super) {
                                 m_carSetups: [CarSetupData; 22],
                             }
                             */
-                            var CarSetupDataParser = new binary_parser_1.Parser().endianess('little')
-                                .uint8('m_frontWing')
-                                .uint8('m_rearWing')
-                                .uint8('m_onThrottle')
-                                .uint8('m_offThrottle')
-                                .floatle('m_frontCamber')
-                                .floatle('m_rearCamber')
-                                .floatle('m_frontToe')
-                                .floatle('m_rearToe')
-                                .uint8('m_frontSuspension')
-                                .uint8('m_rearSuspension')
-                                .uint8('m_frontAntiRollBar')
-                                .uint8('m_rearAntiRollBar')
-                                .uint8('m_frontSuspensionHeight')
-                                .uint8('m_rearSuspensionHeight')
-                                .uint8('m_brakePressure')
-                                .uint8('m_brakeBias')
-                                .floatle('m_rearLeftTyrePressure')
-                                .floatle('m_rearRightTyrePressure')
-                                .floatle('m_frontLeftTyrePressure')
-                                .floatle('m_frontRightTyrePressure')
-                                .uint8('m_ballast')
-                                .floatle('m_fuelLoad');
-                            var PacketCarSetupDataParser = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
-                                .array('m_carSetups', {
-                                type: CarSetupDataParser,
-                                length: 22
-                            });
-                            var data = PacketCarSetupDataParser.parse(msg);
+                            var data = parsers_1.PacketCarSetupDataParser.parse(msg);
                             _this.emit('carSetup', data);
                         }
                         break;
@@ -823,48 +603,7 @@ var F123UDP = /** @class */ (function (_super) {
                                                                                              // 0 if no gear suggested
                             }
                             */
-                            var CarTelemetryDataParser = new binary_parser_1.Parser().endianess('little')
-                                .uint16le('m_speed')
-                                .floatle('m_throttle')
-                                .floatle('m_steer')
-                                .floatle('m_brake')
-                                .uint8('m_clutch')
-                                .int8('m_gear')
-                                .uint16le('m_engineRPM')
-                                .uint8('m_drs')
-                                .uint8('m_revLightsPercent')
-                                .uint16le('m_revLightsBitValue')
-                                .array('m_brakesTemperature', {
-                                type: 'uint16le',
-                                length: 4
-                            })
-                                .array('m_tyresSurfaceTemperature', {
-                                type: 'uint8',
-                                length: 4
-                            })
-                                .array('m_tyresInnerTemperature', {
-                                type: 'uint8',
-                                length: 4
-                            })
-                                .uint16le('m_engineTemperature')
-                                .array('m_tyresPressure', {
-                                type: 'floatle',
-                                length: 4
-                            })
-                                .array('m_surfaceType', {
-                                type: 'uint8',
-                                length: 4
-                            });
-                            var PacketCarTelemetryDataParser = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
-                                .array('m_carTelemetryData', {
-                                type: CarTelemetryDataParser,
-                                length: 22
-                            })
-                                .uint8('m_mfdPanelIndex')
-                                .uint8('m_mfdPanelIndexSecondaryPlayer')
-                                .int8('m_suggestedGear');
-                            var data = PacketCarTelemetryDataParser.parse(msg);
+                            var data = parsers_1.PacketCarTelemetryDataParser.parse(msg);
                             _this.emit('carTelemetry', data);
                         }
                         break;
@@ -916,39 +655,7 @@ var F123UDP = /** @class */ (function (_super) {
                             }
                             
                             */
-                            var CarStatusDataParser = new binary_parser_1.Parser().endianess('little')
-                                .uint8('m_traction_control')
-                                .uint8('m_anti_lock_brakes')
-                                .uint8('m_fuel_mix')
-                                .uint8('m_front_brake_bias')
-                                .uint8('m_pit_limiter_status')
-                                .floatle('m_fuel_in_tank')
-                                .floatle('m_fuel_capacity')
-                                .floatle('m_fuel_remaining_laps')
-                                .uint16le('m_max_rpm')
-                                .uint16le('m_idle_rpm')
-                                .uint8('m_max_gears')
-                                .uint8('m_drs_allowed')
-                                .uint16le('m_drs_activation_distance')
-                                .uint8('m_actual_tyre_compound')
-                                .uint8('m_visual_tyre_compound')
-                                .uint8('m_tyres_age_laps')
-                                .int8('m_vehicle_fia_flags')
-                                .floatle('m_engine_power_ice')
-                                .floatle('m_engine_power_mguk')
-                                .floatle('m_ers_store_energy')
-                                .uint8('m_ers_deploy_mode')
-                                .floatle('m_ers_harvested_this_lap_mguk')
-                                .floatle('m_ers_harvested_this_lap_mguh')
-                                .floatle('m_ers_deployed_this_lap')
-                                .uint8('m_network_paused');
-                            var PacketCarStatusDataParser = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
-                                .array('m_car_status_data', {
-                                type: CarStatusDataParser,
-                                length: 22
-                            });
-                            var data = PacketCarStatusDataParser.parse(msg);
+                            var data = parsers_1.PacketCarStatusDataParser.parse(msg);
                             _this.emit('carStatus', data);
                         }
                         break;
@@ -983,38 +690,7 @@ var F123UDP = /** @class */ (function (_super) {
                             
                             
                             */
-                            var FinalClassificationDataParser = new binary_parser_1.Parser().endianess('little')
-                                .uint8('m_position')
-                                .uint8('m_numLaps')
-                                .uint8('m_gridPosition')
-                                .uint8('m_points')
-                                .uint8('m_numPitStops')
-                                .uint8('m_resultStatus')
-                                .uint32le('m_bestLapTimeInMS')
-                                .floatle('m_totalRaceTime')
-                                .uint8('m_penaltiesTime')
-                                .uint8('m_numPenalties')
-                                .uint8('m_numTyreStints')
-                                .array('m_tyreStintsActual', {
-                                type: 'uint8',
-                                length: 8
-                            })
-                                .array('m_tyreStintsVisual', {
-                                type: 'uint8',
-                                length: 8
-                            })
-                                .array('m_tyreStintsEndLaps', {
-                                type: 'uint8',
-                                length: 8
-                            });
-                            var PacketFinalClassificationDataParser = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
-                                .uint8('m_numCars')
-                                .array('m_classificationData', {
-                                type: FinalClassificationDataParser,
-                                length: 22
-                            });
-                            var data = PacketFinalClassificationDataParser.parse(msg);
+                            var data = parsers_1.PacketFinalClassificationDataParser.parse(msg);
                             _this.emit('finalClassification', data);
                         }
                         break;
@@ -1041,22 +717,7 @@ var F123UDP = /** @class */ (function (_super) {
                             }
                             
                             */
-                            var LobbyInfoDataParser = new binary_parser_1.Parser().endianess('little')
-                                .uint8('m_aiControlled')
-                                .uint8('m_teamId')
-                                .uint8('m_nationality')
-                                .uint8('m_platform')
-                                .string('m_name', { length: 48 })
-                                .uint8('m_carNumber')
-                                .uint8('m_readyStatus');
-                            var PacketLobbyInfoDataParser = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
-                                .uint8('m_numPlayers')
-                                .array('m_lobbyPlayers', {
-                                type: LobbyInfoDataParser,
-                                length: 22
-                            });
-                            var data = PacketLobbyInfoDataParser.parse(msg);
+                            var data = parsers_1.PacketLobbyInfoDataParser.parse(msg);
                             _this.emit('lobbyInfo', data);
                         }
                         break;
@@ -1093,44 +754,7 @@ var F123UDP = /** @class */ (function (_super) {
                                 m_car_damage_data: [CarDamageData; 22],
                             }
                             */
-                            var CarDamageDataParser = new binary_parser_1.Parser().endianess('little')
-                                .array('m_tyres_wear', {
-                                type: 'floatle',
-                                length: 4
-                            })
-                                .array('m_tyres_damage', {
-                                type: 'uint8',
-                                length: 4
-                            })
-                                .array('m_brakes_damage', {
-                                type: 'uint8',
-                                length: 4
-                            })
-                                .uint8('m_front_left_wing_damage')
-                                .uint8('m_front_right_wing_damage')
-                                .uint8('m_rear_wing_damage')
-                                .uint8('m_floor_damage')
-                                .uint8('m_diffuser_damage')
-                                .uint8('m_sidepod_damage')
-                                .uint8('m_drs_fault')
-                                .uint8('m_ers_fault')
-                                .uint8('m_gear_box_damage')
-                                .uint8('m_engine_damage')
-                                .uint8('m_engine_mguh_wear')
-                                .uint8('m_engine_es_wear')
-                                .uint8('m_engine_ce_wear')
-                                .uint8('m_engine_ice_wear')
-                                .uint8('m_engine_mguk_wear')
-                                .uint8('m_engine_tc_wear')
-                                .uint8('m_engine_blown')
-                                .uint8('m_engine_seized');
-                            var PacketCarDamageDataParser = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
-                                .array('m_car_damage_data', {
-                                type: CarDamageDataParser,
-                                length: 22
-                            });
-                            var data = PacketCarDamageDataParser.parse(msg);
+                            var data = parsers_1.PacketCarDamageDataParser.parse(msg);
                             _this.emit('carDamage', data);
                         }
                         break;
@@ -1169,37 +793,7 @@ var F123UDP = /** @class */ (function (_super) {
                                 m_tyreStintsHistoryData: [TyreStintHistoryData; 8],
                             }
                             */
-                            var LapHistoryDataParser = new binary_parser_1.Parser().endianess('little')
-                                .uint32le('m_lapTimeInMS')
-                                .uint16le('m_sector1TimeInMS')
-                                .uint8('m_sector1TimeMinutes')
-                                .uint16le('m_sector2TimeInMS')
-                                .uint8('m_sector2TimeMinutes')
-                                .uint16le('m_sector3TimeInMS')
-                                .uint8('m_sector3TimeMinutes')
-                                .uint8('m_lapValidBitFlags');
-                            var TyreStintHistoryDataParser = new binary_parser_1.Parser().endianess('little')
-                                .uint8('m_endLap')
-                                .uint8('m_tyreActualCompound')
-                                .uint8('m_tyreVisualCompound');
-                            var PacketSessionHistoryDataParser = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
-                                .uint8('m_carIdx')
-                                .uint8('m_numLaps')
-                                .uint8('m_numTyreStints')
-                                .uint8('m_bestLapTimeLapNum')
-                                .uint8('m_bestSector1LapNum')
-                                .uint8('m_bestSector2LapNum')
-                                .uint8('m_bestSector3LapNum')
-                                .array('m_lapHistoryData', {
-                                type: LapHistoryDataParser,
-                                length: 100
-                            })
-                                .array('m_tyreStintsHistoryData', {
-                                type: TyreStintHistoryDataParser,
-                                length: 8
-                            });
-                            var data = PacketSessionHistoryDataParser.parse(msg);
+                            var data = parsers_1.PacketSessionHistoryDataParser.parse(msg);
                             _this.emit('sessionHistory', data);
                         }
                         break;
@@ -1226,25 +820,7 @@ var F123UDP = /** @class */ (function (_super) {
                                 m_fittedIdx: u8,                     // Index into array of fitted tyre
                             }
                             */
-                            var TyreSetDataParser = new binary_parser_1.Parser().endianess('little')
-                                .uint8('m_actualTyreCompound')
-                                .uint8('m_visualTyreCompound')
-                                .uint8('m_wear')
-                                .uint8('m_available')
-                                .uint8('m_recommendedSession')
-                                .uint8('m_lifeSpan')
-                                .uint8('m_usableLife')
-                                .int16le('m_lapDeltaTime')
-                                .uint8('m_fitted');
-                            var PacketTyreSetsDataParser = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
-                                .uint8('m_carIdx')
-                                .array('m_tyreSetData', {
-                                type: TyreSetDataParser,
-                                length: 20
-                            })
-                                .uint8('m_fittedIdx');
-                            var data = PacketTyreSetsDataParser.parse(msg);
+                            var data = parsers_1.PacketTyreSetsDataParser.parse(msg);
                             _this.emit('tyreSets', data);
                         }
                         break;
@@ -1277,56 +853,7 @@ var F123UDP = /** @class */ (function (_super) {
                                 m_wheelVertForce: [f32; 4],            // Vertical forces for each wheel
                             }
                             */
-                            var PacketMotionExDataParser = new binary_parser_1.Parser().endianess('little')
-                                .nest('m_header', { type: PacketHeaderParser })
-                                .array('m_suspensionPosition', {
-                                type: 'floatle',
-                                length: 4
-                            })
-                                .array('m_suspensionVelocity', {
-                                type: 'floatle',
-                                length: 4
-                            })
-                                .array('m_suspensionAcceleration', {
-                                type: 'floatle',
-                                length: 4
-                            })
-                                .array('m_wheelSpeed', {
-                                type: 'floatle',
-                                length: 4
-                            })
-                                .array('m_wheelSlipRatio', {
-                                type: 'floatle',
-                                length: 4
-                            })
-                                .array('m_wheelSlipAngle', {
-                                type: 'floatle',
-                                length: 4
-                            })
-                                .array('m_wheelLatForce', {
-                                type: 'floatle',
-                                length: 4
-                            })
-                                .array('m_wheelLongForce', {
-                                type: 'floatle',
-                                length: 4
-                            })
-                                .floatle('m_heightOfCOGAboveGround')
-                                .floatle('m_localVelocityX')
-                                .floatle('m_localVelocityY')
-                                .floatle('m_localVelocityZ')
-                                .floatle('m_angularVelocityX')
-                                .floatle('m_angularVelocityY')
-                                .floatle('m_angularVelocityZ')
-                                .floatle('m_angularAccelerationX')
-                                .floatle('m_angularAccelerationY')
-                                .floatle('m_angularAccelerationZ')
-                                .floatle('m_frontWheelsAngle')
-                                .array('m_wheelVertForce', {
-                                type: 'floatle',
-                                length: 4
-                            });
-                            var data = PacketMotionExDataParser.parse(msg);
+                            var data = parsers_1.PacketMotionExDataParser.parse(msg);
                             _this.emit('motionEx', data);
                         }
                         break;
